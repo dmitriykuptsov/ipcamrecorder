@@ -73,16 +73,18 @@ def capturing(config):
         if not os.path.exists(config["OUTPUT_FOLDER"]):
             os.makedirs(folder)
         try:
-            subprocess.run(["ffmepg", \
-                    "-use_wallclock_as_timestamps 1", \
-                    "-i", config["RTSP_URL"], \
-                    "-rtsp_transport", config["TRANSPORT_PROTOCOL"],
-                    "-vcodec copy -acodec copy", \
-                    "-f segment", \
-                    "-reset_timestamps 1", \
+            subprocess.run(["ffmpeg", \
+                    "-i", \
+		    config["RTSP_URL"], \
+                    "-rtsp_transport", \
+		    config["TRANSPORT_PROTOCOL"], \
+                    "-vcodec", "copy", \
+		    "-acodec", "copy", \
+                    "-f", "segment", \
+                    "-reset_timestamps", "1", \
                     "-segment_time", str(config["SEGMENT_DURATION"]), \
                     "-segment_format", config["VIDEO_CONTAINER"], \
-                    "-strftime 1 " + folder + "%s." + config["VIDEO_CONTAINER"] \
+                    "-strftime", "1",  folder + "%s." + config["VIDEO_CONTAINER"] \
                     ])
         except Exception as e:
             logging.critical("Exception occured while capturing the video stream ....!!!!")
