@@ -33,7 +33,7 @@ SERVER_NONCE = "RabroyllIjhywofuckcorwojnamvowAg"
 
 MAX_CONTENT_PATH = 30*1024*1024;
 
-OUTPUT_FOLDER = "/opt/data2/ipcam/storage/192.168.1.21/video1",
+OUTPUT_FOLDER = "/opt/data2/ipcam/storage/192.168.1.21/video1/",
 
 USER = "admin"
 
@@ -42,3 +42,11 @@ SALT = "vsjKJ2csaj)312Kc-)#c2andP014dvrR"
 PASSWORD = "a696afa681056ae310944b72384726053306dad3ff4a8a4aa5a27f85e856af92" #Hashed password SHAR256(SALT | PASSWORD)
 
 MAX_SEGMENTS_PER_HLS = 10
+
+VIDEO_CONTAINER = "mp4"
+
+EXTRACT_DURATION_SCRIPT = "compute_duration.sh"
+
+EXEC_DIR = "."
+
+M3U8_VERSION = 0x3
