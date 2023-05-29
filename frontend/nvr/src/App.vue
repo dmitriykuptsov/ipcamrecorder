@@ -1,9 +1,14 @@
 <template>
-  <LoginComponent v-if="!isAuthenticated" v-on:login="onLogin" />
+  <div style="width: 100%; height: 100%">
+    <LoginComponent v-if="!isAuthenticated" v-on:login="onLogin" />
+    <PlayerComponent v-if="isAuthenticated" />
+  </div>
 </template>
 
 <script>
 import LoginComponent from './components/LoginComponent.vue'
+import PlayerComponent from './components/PlayerComponent.vue'
+
 
 export default {
   name: "App",
@@ -16,7 +21,8 @@ export default {
     
   },
   components: {
-    LoginComponent
+    LoginComponent,
+    PlayerComponent
   }
 }
 </script>
