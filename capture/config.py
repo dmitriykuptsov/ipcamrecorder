@@ -10,3 +10,5 @@ config = {
     "MAX_VIDEO_LIFETIME": 86400,
     "CLEAN_UP_INTERVAL": 60
 }
+
+}
