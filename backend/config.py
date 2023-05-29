@@ -14,6 +14,10 @@ THREADS_PER_PAGE = 10
 # Enable protection agains *Cross-site Request Forgery (CSRF)*
 CSRF_ENABLED     = True
 
+# JWT VALIDITY PERIOD
+
+JWT_VALIDITY_IN_DAYS = 365
+
 # Use a secure, unique and absolutely secret key for
 # signing the data.
 CSRF_SESSION_KEY = "kamnakosyonBaljIpMishlanUnEvosbo"
@@ -35,4 +39,4 @@ USER = "admin"
 
 SALT = "vsjKJ2csaj)312Kc-)#c2andP014dvrR"
 
-PASSWORD = "" #Hashed password SHAR256(SALT | PASSWORD)
+PASSWORD = "a696afa681056ae310944b72384726053306dad3ff4a8a4aa5a27f85e856af92" #Hashed password SHAR256(SALT | PASSWORD)

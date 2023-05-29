@@ -2,7 +2,6 @@ import jwt
 from Crypto.Hash import SHA256
 import datetime
 
-
 def unique(list):
  
     # initialize a null list
@@ -64,7 +63,10 @@ def check_password(password, salt, hashed):
     h = SHA256.new()
     h.update(password + salt)
     c_hashed = h.hexdigest()
-    return  bytes(c_hashed, encoding="UTF-8") == hashed 
+    print(hashed)
+    print(salt)
+    print(c_hashed)
+    return  c_hashed == hashed 
 
 def encode_jwt(username, role_id, salt, server_nonce, days, key):
     """

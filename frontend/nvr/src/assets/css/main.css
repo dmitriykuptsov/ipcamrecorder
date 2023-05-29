@@ -1,0 +1,264 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #ffffff !important;
+  min-height: 100vh;
+  display: flex;
+  font-weight: 400;
+}
+
+body,
+html,
+.App,
+.vue-tempalte,
+.vertical-center {
+  width: 100%;
+  height: 100%;
+}
+
+.bi {
+  padding: 0 !important;
+}
+.btn-add {
+  background-color: #ffffff;
+  border-color: #68737d;
+  color: #68737d;
+}
+.btn-add:hover {
+  background-color: #68737d;
+  color: #ffffff;
+  border-color: #68737d;
+}
+.btn-upload {
+  background-color: #ffffff;
+  border-color: #68737d;
+  color: #68737d;
+}
+.btn-upload:hover {
+  background-color: #68737d;
+  color: #ffffff;
+  border-color: #68737d;
+}
+/* .btn-add {
+  background-color: #3d6041;
+  border-color: #3d6041;
+}
+.btn-add:hover {
+  background-color: #42824a;
+  border-color: #42824a;
+} */
+.btn-addinfo {
+  margin-right: 15px;
+  background-color: #313132;
+}
+.btn-calc {
+  background-color: #2641cc;
+  border-color: #2641cc;
+}
+.btn-calc:hover {
+  background-color: #4563f7;
+  border-color: #4563f7;
+}
+.btn-comments {
+  background-color: #2641cc;
+  border-color: #2641cc;
+}
+.btn-comments:hover {
+  background-color: #4563f7;
+  border-color: #4563f7;
+}
+.btn-query,
+.btn-delete,
+.btn-edit,
+.btn-property,
+.btn-reserves,
+.btn-location,
+.btn-comments,
+.btn-file {
+  background-color: #87929d;
+  border-color: #87929d;
+  margin-right: 5px;
+}
+.btn-query:hover,
+.btn-delete:hover,
+.btn-edit:hover,
+.btn-clear:hover,
+.btn-property:hover,
+.btn-location:hover,
+.btn-reserves:hover,
+.btn-comments:hover,
+btn-file:hover {
+  background-color: #68737d;
+  border-color: #68737d;
+}
+.btn-clear {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-report1,
+.btn-report2,
+.btn-report3,
+.btn-report4 {
+  background: #372d69;
+  border-color: #372d69;
+}
+/* .btn-report2 {
+  background-color: #313132;
+}
+.btn-report3 {
+  background-color: #4a4a4c;
+}
+.btn-report4 {
+  background-color: #6e6e74;
+} */
+.btn-site {
+  background-color: #6e6e74;
+  border-color: #6e6e74;
+}
+
+.btn-ok {
+  background-color: #372d69;
+  border-color: #372d69;
+  position: absolute;
+  bottom: 10px;
+  right: calc(50% - 30px);
+}
+
+.btn-ok:hover {
+  background-color: #4c3f8c;
+  border-color: #4c3f8c;
+}
+.container {
+  max-width: 1400px;
+}
+.close,
+.cancel {
+  background-color: #515157;
+  border-color: #515157;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.close:hover,
+.cancel:hover {
+  background-color: #6e6e74;
+  border-color: #6e6e74;
+}
+
+.save,
+.confirm,
+.choose,
+.excel {
+  /* background-color: #3d6041; */
+  /* border-color: #3d6041; */
+  background-color: #372d69;
+  border-color: #372d69;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+.save:hover,
+.confirm:hover,
+.choose:hover,
+.excel:hover {
+  background-color: #4c3f8c;
+  background-color: #4c3f8c;
+}
+
+.cancel {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+.main_content {
+  max-width: 1400px;
+  margin: 8rem auto;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.menu_container {
+  padding: 0;
+  margin-bottom: 25px;
+  background: #372d69;
+  display: block;
+  position: fixed;
+  width: 100%;
+  top: 25px;
+  z-index: 1;
+}
+
+.menu {
+  display: flex;
+  position: relative;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+.navbar-light {
+  background-color: #ffffff;
+  box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
+}
+.header {
+  height: 30px;
+  width: 100%;
+  background-color: #372d69 !important;
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+}
+.message {
+  margin-top: 5px;
+  font-weight: bolder;
+  color: black;
+  text-align: center;
+}
+
+.modal-window {
+  border-radius: 5px;
+}
+
+.vertical-center {
+  display: flex;
+  text-align: left;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inner-block {
+  width: 450px;
+  margin: auto;
+  background: #ffffff;
+  box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
+  padding: 40px 55px 45px 55px;
+  border-radius: 15px;
+  transition: all 0.3s;
+}
+
+.vertical-center .form-control:focus {
+  border-color: #2554ff;
+  box-shadow: none;
+}
+
+.vertical-center h3 {
+  text-align: center;
+  margin: 0;
+  line-height: 1;
+  padding-bottom: 20px;
+}
+
+label {
+  font-weight: 500;
+}
+
+.table > :not(:first-child) {
+  border-top: none !important;
+}
+
+.table-vert-align {
+  vertical-align: baseline;
+}

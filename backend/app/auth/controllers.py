@@ -37,9 +37,16 @@ def signin():
                 "success": False
             }, 200)
         salt = hexlify(os.urandom(32))
-        
-        if user and check_password(data.get("password", "").encode("UTF-8"), salt, password):
-            token = encode_jwt(user.imya, user.rol_id, salt.decode("UTF-8"), config_["SERVER_NONCE"], config_["JWT_VALIDITY_IN_DAYS"], config_["TOKEN_KEY"])
+
+        print("Login into the system")
+        print("Username : " + data.get("username", ""))
+        print("Password : " + data.get("password", ""))
+        if data.get("username", "") == config_["USER"] \
+            and check_password(data.get("password", "").encode("UTF-8"), config_["SALT"].encode("UTF-8"), config_["PASSWORD"]):
+            token = encode_jwt(data.get("username", ""), \
+                "ADMIN", salt.decode("UTF-8"), config_["SERVER_NONCE"], \
+                config_["JWT_VALIDITY_IN_DAYS"], \
+                config_["TOKEN_KEY"])
             return jsonify({
                 "token": token,
                 "success": True

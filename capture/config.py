@@ -1,5 +1,5 @@
 config = {
-    "SEGMENT_DURATION": 60,
+    "SEGMENT_DURATION": 10,
     "VIDEO_CONTAINER": "mp4",
     "CAMERA_NAME": "CAMERA1",
     "CAMERA_IP_ADDRESS": "192.168.1.21",
@@ -9,6 +9,4 @@ config = {
     "CLEAN_UP_SCRIPT": "/opt/data2/ipcam/scripts/cleanup.py",
     "MAX_VIDEO_LIFETIME": 86400,
     "CLEAN_UP_INTERVAL": 60
-}
-
 }
