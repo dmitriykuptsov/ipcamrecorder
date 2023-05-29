@@ -46,7 +46,7 @@
         <div class="form-group" style="margin-top: 10px">
           <button @click="login" class="btn btn-dark btn-lg btn-block btn-add">
             <BootstrapIcon icon="arrow-right-square" size="1x" />
-            Войти
+            Login
           </button>
         </div>
         <div class="form-group" v-if="failed" style="margin-top: 10px">
