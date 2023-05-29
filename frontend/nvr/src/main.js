@@ -5,4 +5,4 @@ import "@/assets/css/main.css";
 
 var app = createApp(App)
 app.mount('#app')
-app.config.globalProperties["$BASE_URL"] = "http://localhost:5000";
+app.config.globalProperties["$BASE_URL"] = "http://192.168.1.3";
