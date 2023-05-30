@@ -8,10 +8,14 @@ sudo apt-get install python3-pip
 sudo pip3 install flask
 sudo pip3 install flask_cors
 sudo pip3 install pycryptodome
+sudo pip3 install logging
 
 echo "Creating application folders"
 sudo mkdir -p /opt/data2/ipcam/hls/
 sudo mkdir -p /opt/data2/ipcam/capture/
+sudo mkdir -p /opt/data2/ipcam/storage/192.168.1.21/video1
+
+sudo chown www-data:www-data -R /opt/data2/ipcam/
 sudo chown www-data:www-data -R /opt/data2/ipcam/capture/
 sudo chown www-data:www-data -R /opt/data2/ipcam/hls/
 
@@ -25,7 +29,7 @@ sudo rsync -rv ../backend/app ../backend/run.py ../backend/config.py /opt/data2/
 sudo chown www-data:www-data -R /opt/data2/ipcam/hls/
 
 echo "Copying the RTSP stream capture application"
-sudo rsync -rv ../capture/* /opt/data2/ipcam/hls/
+sudo rsync -rv ../capture/* /opt/data2/ipcam/capture/
 sudo chown www-data:www-data -R /opt/data2/ipcam/capture/
 
 echo "Copying the web application files"

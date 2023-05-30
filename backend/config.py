@@ -42,6 +42,8 @@ CSRF_SESSION_KEY = "kamnakosyonBaljIpMishlanUnEvosbo"
 # Secret key for signing cookies
 SECRET_KEY = "ew0BlawpAcyajNirshesUvonViUjEbs1"
 
+SESSION_TYPE = 'filesystem'
+
 # Token key
 TOKEN_KEY = "OogyejIvumNasAdUbBishkOudGajnicPiWrymagAbthucradocviOrmosOvDerow"
 
@@ -66,4 +68,4 @@ EXTRACT_DURATION_SCRIPT = "compute_duration.sh"
 
 EXEC_DIR = "."
 
-M3U8_VERSION = 0x3
+M3U8_VERSION = 0x4

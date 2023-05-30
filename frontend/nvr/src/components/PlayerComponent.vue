@@ -4,7 +4,7 @@
       Camera archive
     </h3>
     <div>
-      <video ref="video" width="1200" height="600" controls></video>
+      <video ref="video" width="1200" height="600" controls preload=none></video>
     </div>
     <div style="margin-top: 10px; width: 100%;">
       <table style="width: 600px; margin: auto;">

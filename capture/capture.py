@@ -25,6 +25,7 @@ __status__ = "development"
 
 # Logging
 import logging
+from logging.handlers import RotatingFileHandler
 
 # import system library
 import sys
@@ -58,7 +59,7 @@ logging.basicConfig(
 	level=logging.DEBUG,
 	format="%(asctime)s [%(levelname)s] %(message)s",
 	handlers=[
-		logging.RotatingFileHandler("rtsp_capture.log", backupCount=10),
+		RotatingFileHandler("rtsp_capture.log", backupCount=10),
 		logging.StreamHandler(sys.stdout)
 	]
 );
@@ -69,6 +70,7 @@ def convertMp4ToMPEGTS():
     """
     while True:
         try:
+            print("1!!!11111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             files = os.listdir(config["OUTPUT_FOLDER"])
             files.sort()
             for file in files:
@@ -78,8 +80,11 @@ def convertMp4ToMPEGTS():
                     #subprocess.run(["rm", file])
                     iff = config["OUTPUT_FOLDER"] + file;
                     off = config["OUTPUT_FOLDER"] + str(timestamp) + ".ts";
-                    result=os.popen(" ".join(["ffmpeg", "-i", iff, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", off])).read().strip();
-                    result=os.popen(" ".join(["rm", iff])).read().strip();
+                    logging.debug("------------------------- Converting the file -------------------------------")
+                    if not os.path.exists(off):
+                        result=os.popen(" ".join(["ffmpeg", "-i", iff, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", off])).read().strip();
+                    else:
+                        result=os.popen(" ".join(["rm", iff])).read().strip();
         except Exception as e:
             logging.critical("Exception occured while converting the file")
             logging.critical(e);

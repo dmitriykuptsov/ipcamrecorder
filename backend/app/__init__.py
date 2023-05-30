@@ -18,6 +18,8 @@
 
 # Import flask and template operators
 from flask import Flask, render_template, redirect, url_for
+from flask_caching import Cache
+from flask_session import Session
 
 # System libraries
 import os
@@ -32,9 +34,13 @@ app = Flask(__name__, static_folder = 'templates/static')
 
 # Allow Cross origin requests
 cors = CORS(app, resources={r"*": {"origins": "*"}})
+cache = Cache(app)
 
 # Configurations
 app.config.from_object('config')
+
+# Set server side session engine
+server_session = Session(app)
 
 config_ = app.config;
 

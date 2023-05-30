@@ -17,7 +17,7 @@
 
 # Flask related methods...
 from flask import Blueprint, request, render_template, \
-    flash, g, session, redirect, url_for, jsonify, send_from_directory, after_this_request, send_file, session, abort, Response
+    flash, g, redirect, url_for, jsonify, send_from_directory, after_this_request, send_file, abort, Response, session
 # Secure filename
 from werkzeug.utils import secure_filename
 
@@ -38,6 +38,8 @@ from math import ceil
 
 # Configuration
 from app import config_ as config
+#from app import cache
+#from app import session
 
 # Security helpers
 from app.utils.utils import is_valid_session, hash_password, get_subject
@@ -70,6 +72,8 @@ import re
 
 # Blueprint
 mod_api = Blueprint("api", __name__, url_prefix="/api")
+
+
 
 def getListOfTimestamps(config):
     #print(config["OUTPUT_FOLDER"])
@@ -164,7 +168,7 @@ def get_file(file):
     if not re.match("^[0-9]+.(ts|mkv|mp4|mpeg4)$", file):
         return jsonify({"auth_fail": True}, 404)
     filename = config["OUTPUT_FOLDER"] + "/" + file;
-    return send_file(filename, mimetype='video/mpegts');
+    return send_file(filename, mimetype='video/mp2t');
 
 @mod_api.route("/get_next_m3u8/playlist.m3u8", methods=["GET"])
 def get_next_m3u8():
@@ -175,11 +179,12 @@ def get_next_m3u8():
     if len(timestamps) < 1:
         return jsonify({"auth_fail": True}, 404)
     if not session.get("last_timestamp", None):
-        
         if len(timestamps) < config["MAX_SEGMENTS_PER_HLS"]:
             lastTimestamp = int(timestamps[0])
         else:
             lastTimestamp = int(timestamps[-10])
+            newIndex = len(timestamps) - 10
+            print("--------------------------------- LAST TIMESTAMP -------------------------------------------------- ")
         sequence = 0
         session["sequence"] = sequence
         session["last_timestamp"] = int(lastTimestamp)
@@ -215,29 +220,60 @@ def get_next_m3u8():
             if notFound:
                 return Response(response=None, status=404,  mimetype="plain/text")
             session["last_timestamp"] = lastTimestamp
-    
+
     print("Building the file list")
-    sequence += min(config["MAX_SEGMENTS_PER_HLS"], len(timestamps));
-    session["sequence"] = sequence
     durations = [];
     timestampsToAdd = []
-    for idx in range(newIndex, min(newIndex + config["MAX_SEGMENTS_PER_HLS"], newIndex + len(timestamps))):
-        vfile = str(timestamps[idx]) + "." + config["VIDEO_CONTAINER"];
-        vfile_full_path = config["OUTPUT_FOLDER"] + vfile;
-        result=os.popen("".join([config["EXEC_DIR"], "/", config["EXTRACT_DURATION_SCRIPT"], " ", vfile_full_path])).read().strip();
-        durations.append(result);
-        timestampsToAdd.append(timestamps[idx])
-    
-    max_duration = max(durations);
-    playlist = "#EXTM3U\r\n";
-    playlist += "#EXT-X-TARGETDURATION:" + str(max_duration) + "\r\n";
-    playlist += "#EXT-X-VERSION:" + str(config["M3U8_VERSION"]) + "\r\n";
-    playlist += "#EXT-X-MEDIA-SEQUENCE:" + str(sequence) + "\r\n";
-    playlist += "#EXT-X-PROGRAM-DATE-TIME:" + datetime.fromtimestamp(lastTimestamp).isoformat() + "Z\r\n";
+    if newIndex + config["MAX_SEGMENTS_PER_HLS"] < len(timestamps):
+        print("+++++++++++++++++++++++++++++++++ BUILDING NEW FILE ++++++++++++++++++++++++++++++++++")
+        sequence += min(config["MAX_SEGMENTS_PER_HLS"], len(timestamps));
+        session["sequence"] = sequence
+        for idx in range(newIndex, min(newIndex + config["MAX_SEGMENTS_PER_HLS"], newIndex + len(timestamps))):
+            vfile = str(timestamps[idx]) + "." + config["VIDEO_CONTAINER"];
+            vfile_full_path = config["OUTPUT_FOLDER"] + vfile;
+            result=os.popen("".join([config["EXEC_DIR"], "/", config["EXTRACT_DURATION_SCRIPT"], " ", vfile_full_path])).read().strip();
+            durations.append(result);
+            timestampsToAdd.append(timestamps[idx])
 
-    for i in range(0, len(durations)):
-        playlist += "#EXTINF:" + str(durations[i]) + ",\r\n";
-        playlist += "/api/get_file/" + str(timestampsToAdd[i]) + "." + config["VIDEO_CONTAINER"] + "\r\n";
-    
+        max_duration = max(durations);
+        playlist = "#EXTM3U\r\n";
+        playlist += "#EXT-X-DISCONTINUITY\r\n"
+        playlist += "#EXT-X-TARGETDURATION:" + str(max_duration) + "\r\n";
+        playlist += "#EXT-X-VERSION:" + str(config["M3U8_VERSION"]) + "\r\n";
+        playlist += "#EXT-X-MEDIA-SEQUENCE:" + str(sequence) + "\r\n";
+        playlist += "#EXT-X-PROGRAM-DATE-TIME:" + datetime.fromtimestamp(lastTimestamp).isoformat() + "Z\r\n";
+
+        for i in range(0, len(durations)):
+            playlist += "#EXTINF:" + str(durations[i]) + ",\r\n";
+            playlist += "/api/get_file/" + str(timestampsToAdd[i]) + "." + config["VIDEO_CONTAINER"] + "\r\n";
+            session["last_timestamp"] = timestampsToAdd[i]
+    else:
+        if newIndex > 0:
+            newIndex = newIndex - config["MAX_SEGMENTS_PER_HLS"]
+        for idx in range(newIndex, min(newIndex + config["MAX_SEGMENTS_PER_HLS"], newIndex + len(timestamps))):
+            vfile = str(timestamps[idx]) + "." + config["VIDEO_CONTAINER"];
+            vfile_full_path = config["OUTPUT_FOLDER"] + vfile;
+            result=os.popen("".join([config["EXEC_DIR"], "/", config["EXTRACT_DURATION_SCRIPT"], " ", vfile_full_path])).read().strip();
+            durations.append(result);
+            timestampsToAdd.append(timestamps[idx])
+
+        max_duration = max(durations);
+        playlist = "#EXTM3U\r\n";
+        playlist += "#EXT-X-DISCONTINUITY\r\n"
+        playlist += "#EXT-X-TARGETDURATION:" + str(max_duration) + "\r\n";
+        playlist += "#EXT-X-VERSION:" + str(config["M3U8_VERSION"]) + "\r\n";
+        playlist += "#EXT-X-MEDIA-SEQUENCE:" + str(sequence) + "\r\n";
+        playlist += "#EXT-X-PROGRAM-DATE-TIME:" + datetime.fromtimestamp(lastTimestamp).isoformat() + "Z\r\n";
+
+        for i in range(0, len(durations)):
+            playlist += "#EXTINF:" + str(durations[i]) + ",\r\n";
+            playlist += "/api/get_file/" + str(timestampsToAdd[i]) + "." + config["VIDEO_CONTAINER"] + "\r\n";
+            session["last_timestamp"] = timestampsToAdd[i]
+
+    print("=========================================")
+    print(playlist)
+    print(session["sequence"])
+    print(session["last_timestamp"])
+    print("=========================================")
     return Response(response=playlist, status=200,  mimetype="application/x-mpegurl")
 
