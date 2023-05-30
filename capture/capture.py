@@ -63,6 +63,24 @@ logging.basicConfig(
 	]
 );
 
+def convertMp4ToMPEGTS():
+    """
+    Converts the MP4 files to MPEGTS stream files
+    """
+    while True:
+        try:
+            files = os.listdir(config["OUTPUT_FOLDER"])
+            for file in files:
+                if re.match("[0-9]+\.mp4", file):
+                    timestamp = int(file.split(".")[0])
+                    subprocess.run(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])
+                    subprocess.run(["rm", file])
+        except Exception as e:
+            logging.critical("Exception occured while converting the file")
+            logging.critical(e);
+            traceback.print_exc()
+        sleep(1)
+
 def capturing(config):
     """
     Captures the stream, slices it and writes to the disk
@@ -75,11 +93,11 @@ def capturing(config):
         try:
             subprocess.run(["ffmpeg", \
                     "-i", \
-		    config["RTSP_URL"], \
+                    config["RTSP_URL"], \
                     "-rtsp_transport", \
-		    config["TRANSPORT_PROTOCOL"], \
+                    config["TRANSPORT_PROTOCOL"], \
                     "-vcodec", "copy", \
-		    "-acodec", "copy", \
+                    "-acodec", "copy", \
                     "-f", "segment", \
                     "-reset_timestamps", "1", \
                     "-segment_time", str(config["SEGMENT_DURATION"]), \
@@ -116,8 +134,11 @@ def cleanup(config):
 capture_loop = threading.Thread(target = capturing, args = (config, ), daemon = True);
 capture_loop.start()
 
-clean_loop = threading.Thread(target = cleanup, args = (config, ), daemon = True);
-clean_loop.start()
+cleanup_loop = threading.Thread(target = cleanup, args = (config, ), daemon = True);
+cleanup_loop.start()
+
+convert_loop = threading.Thread(target = convertMp4ToMPEGTS, args = (), daemon = True);
+convert_loop.start();
 
 main_loop = True;
 
