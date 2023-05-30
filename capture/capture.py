@@ -70,6 +70,7 @@ def convertMp4ToMPEGTS():
     while True:
         try:
             files = os.listdir(config["OUTPUT_FOLDER"])
+            files.sort()
             for file in files:
                 if re.match("[0-9]+\.mp4", file):
                     timestamp = int(file.split(".")[0])
