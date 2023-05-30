@@ -101,7 +101,7 @@ def get_timestamps_info():
     
     timestamps.sort()
 
-    if len(timestamps) > 1
+    if len(timestamps) > 1:
         return jsonify({
             "auth_fail": False,
             "result": {
@@ -114,11 +114,11 @@ def get_timestamps_info():
         return jsonify({
             "auth_fail": False,
             "result": {
-                "min": None,
-                "max": None,
+                "min": 0,
+                "max": 0,
                 "step": 0
             }
-        }, 200)
+        }, 400)
 
 @mod_api.route("/get_step/", methods = ["POST"])
 def get_step():
@@ -146,6 +146,8 @@ def set_timestamp(timestamp):
     #if not is_valid_session(request, config):
     #    return jsonify({"auth_fail": True}, 403)
     timestamps = getListOfTimestamps(config)
+    if len(timestamps) < 2:
+        return jsonify({"auth_fail": False, "result": False, "reason": "Timestamp is out of range"}, 404)
     if timestamp < timestamps[0] or timestamp > timestamps[-1]:
         return jsonify({"auth_fail": False, "result": False, "reason": "Timestamp is out of range"}, 404)
     session["sequence"] = 0
@@ -169,9 +171,11 @@ def get_next_m3u8():
     #if not is_valid_session(request, config):
     #    return abort(403)
     newIndex = 0
-
+    timestamps = getListOfTimestamps(config)
+    if len(timestamps) < 1:
+        return jsonify({"auth_fail": True}, 404)
     if not session.get("last_timestamp", None):
-        timestamps = getListOfTimestamps(config)
+        
         if len(timestamps) < config["MAX_SEGMENTS_PER_HLS"]:
             lastTimestamp = int(timestamps[0])
         else:
@@ -182,7 +186,7 @@ def get_next_m3u8():
     else:
         lastTimestamp = int(session["last_timestamp"])
         sequence = session["sequence"]
-        timestamps = getListOfTimestamps(config)
+        #timestamps = getListOfTimestamps(config)
 
         if session.get("last_timestamp", None) < timestamps[0] or session.get("last_timestamp", None) > timestamps[-1]:
             if len(timestamps) < config["MAX_SEGMENTS_PER_HLS"]:

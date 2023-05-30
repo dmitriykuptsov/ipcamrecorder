@@ -9,13 +9,18 @@
   },
   "dependencies": {
     "@dvuckovic/vue3-bootstrap-icons": "^1.0.6",
+    "@syncfusion/ej2-vue-calendars": "^21.2.6",
     "@vitejs/plugin-vue": "^4.2.3",
     "@vue/compiler-sfc": "^3.3.4",
     "axios": "^1.4.0",
     "bootstrap": "^5.2.3",
     "core-js": "^3.8.3",
+    "hls.js": "^1.4.4",
     "vue": "^3.2.26",
     "vue-cli": "^2.9.6",
+    "vue-ctk-date-time-picker": "^3.0.0-alpha.0",
+    "vue-slider": "^0.0.1",
+    "vue-slider-component": "^4.1.0-beta.7",
     "vue-videojs7": "^1.0.2"
   },
   "devDependencies": {

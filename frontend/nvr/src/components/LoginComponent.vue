@@ -84,7 +84,7 @@ export default {
         .post(this.$BASE_URL + "/auth/signin/", data, { headers })
         .then((response) => {
           if (response.data[0].success) {
-            sessionStorage.setItem("token", response.data[0].token);
+            //sessionStorage.setItem("token", response.data[0].token);
             this.$parent.isAuthenticated = true;
           }
           this.failed = !response.data[0].success;
