@@ -47,10 +47,12 @@ def signin():
                 "ADMIN", salt.decode("UTF-8"), config_["SERVER_NONCE"], \
                 config_["JWT_VALIDITY_IN_DAYS"], \
                 config_["TOKEN_KEY"])
-            return jsonify({
+            resp = jsonify({
                 "token": token,
                 "success": True
             }, 200)
+            resp.set_cookie("token", value=token, httponly = True)
+            return resp
         else:
             return jsonify({
                 "success": False
@@ -58,9 +60,11 @@ def signin():
 
 @mod_auth.route("/logout/", methods=["GET"])
 def logout():
-    return jsonify({
+    resp = jsonify({
         "success": True
     }, 200)
+    resp.set_cookie("token", value=None)
+    return resp
 
 @mod_auth.route("/validate_token/", methods=["POST"])
 def validate_token():

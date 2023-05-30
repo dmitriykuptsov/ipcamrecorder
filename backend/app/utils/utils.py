@@ -121,7 +121,8 @@ def get_auth_token(request):
     """
     Gets the authentication token from the HTTP header
     """
-    return request.headers.get("Authorization", "").replace("Bearer ", "")
+    #return request.headers.get("Authorization", "").replace("Bearer ", "")
+    return request.cookies.get("token")
 
 def get_role(request, config):
     """
