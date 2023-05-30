@@ -1,0 +1,16 @@
+[Unit]
+Description=IPCAM HLS
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+
+WorkingDirectory=/opt/data2/ipcam/hls/
+ExecStart=/usr/bin/python3 /opt/data2/ipcam/hls/run.py
+
+[Install]
+WantedBy=multi-user.target

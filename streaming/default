@@ -24,6 +24,10 @@ server {
                 proxy_pass http://localhost:5000;
         }
 
+        location /auth {
+                proxy_pass http://localhost:5000;
+        }
+
         # HTML, CSS, Images, etc.
         location / {
                 try_files $uri $uri/ =404;
