@@ -101,13 +101,24 @@ def get_timestamps_info():
     
     timestamps.sort()
 
-    return jsonify({
-        "auth_fail": False,
-        "result": {
-            "min": timestamps[0],
-            "max": timestamps[-1]
-        }
-    }, 200)
+    if len(timestamps) > 1
+        return jsonify({
+            "auth_fail": False,
+            "result": {
+                "min": timestamps[0],
+                "max": timestamps[-1],
+                "step": (timestamps[1] - timestamps[0])
+            }
+        }, 200)
+    else:
+        return jsonify({
+            "auth_fail": False,
+            "result": {
+                "min": None,
+                "max": None,
+                "step": 0
+            }
+        }, 200)
 
 @mod_api.route("/get_step/", methods = ["POST"])
 def get_step():
