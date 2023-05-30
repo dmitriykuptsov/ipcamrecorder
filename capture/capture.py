@@ -79,7 +79,7 @@ def convertMp4ToMPEGTS():
                     iff = config["OUTPUT_FOLDER"] + file;
                     off = config["OUTPUT_FOLDER"] + str(timestamp) + ".ts";
                     result=os.popen(" ".join(["ffmpeg", "-i", iff, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", off])).read().strip();
-                    result=os.popen(" ".join(["rm", file])).read().strip();
+                    result=os.popen(" ".join(["rm", iff])).read().strip();
         except Exception as e:
             logging.critical("Exception occured while converting the file")
             logging.critical(e);
