@@ -76,7 +76,7 @@ def getListOfTimestamps(config):
     tsFiles = os.listdir(config["OUTPUT_FOLDER"])
     timestamps = []
     for file in tsFiles:
-        if re.match("[0-9]+\.(mkv|mp4|mpeg4|ts)", file):
+        if re.match("[0-9]+\." + config["VIDEO_CONTAINER"], file):
             timestamp = file.split(".")[0]
             timestamps.append(int(timestamp))
     
@@ -95,7 +95,7 @@ def get_timestamps_info():
     tsFiles = os.listdir(config["OUTPUT_FOLDER"])
     timestamps = []
     for file in tsFiles:
-        if re.match("[0-9]+\.(mkv|mp4|mpeg4|ts)", file):
+        if re.match("[0-9]+\." + config["VIDEO_CONTAINER"], file):
             timestamp = file.split(".")[0]
             timestamps.append(int(timestamp))
     
@@ -147,10 +147,11 @@ def set_timestamp(timestamp):
 @mod_api.route("/get_file/<file>", methods=["GET"])
 def get_file(file):
     #if not re.match("[0-9]+.(ts|mp4|mkv|mpeg4)", file):
-    #    return 403
+    #    return jsonify({"auth_fail": True}, 403)
+    if not re.match("^[0-9]+.(ts|mkv|mp4|mpeg4)$", file):
+        return jsonify({"auth_fail": True}, 404)
     filename = config["OUTPUT_FOLDER"] + "/" + file;
-    #print(filename)
-    return send_file(filename, mimetype='video/mp4');
+    return send_file(filename, mimetype='video/mpegts');
 
 @mod_api.route("/get_next_m3u8/playlist.m3u8", methods=["GET"])
 def get_next_m3u8():
