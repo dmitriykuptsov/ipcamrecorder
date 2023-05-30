@@ -58,7 +58,7 @@ logging.basicConfig(
 	level=logging.DEBUG,
 	format="%(asctime)s [%(levelname)s] %(message)s",
 	handlers=[
-		logging.FileHandler("rtsp_capture.log"),
+		logging.RotatingFileHandler("rtsp_capture.log", backupCount=10),
 		logging.StreamHandler(sys.stdout)
 	]
 );
@@ -76,7 +76,9 @@ def convertMp4ToMPEGTS():
                     timestamp = int(file.split(".")[0])
                     #subprocess.run(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])
                     #subprocess.run(["rm", file])
-                    result=os.popen(" ".join(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])).read().strip();
+                    iff = config["OUTPUT_FOLDER"] + file;
+                    off = config["OUTPUT_FOLDER"] + str(timestamp) + ".ts";
+                    result=os.popen(" ".join(["ffmpeg", "-i", iff, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", off])).read().strip();
                     result=os.popen(" ".join(["rm", file])).read().strip();
         except Exception as e:
             logging.critical("Exception occured while converting the file")
