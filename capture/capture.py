@@ -74,8 +74,10 @@ def convertMp4ToMPEGTS():
             for file in files:
                 if re.match("[0-9]+\.mp4", file):
                     timestamp = int(file.split(".")[0])
-                    subprocess.run(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])
-                    subprocess.run(["rm", file])
+                    #subprocess.run(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])
+                    #subprocess.run(["rm", file])
+                    result=os.popen(" ".join(["ffmpeg", "-i", file, "-vcodec", "copy", "-vbsf", "h264_mp4toannexb", "-acodec", "copy", str(timestamp) + ".ts"])).read().strip();
+                    result=os.popen(" ".join(["rm", file])).read().strip();
         except Exception as e:
             logging.critical("Exception occured while converting the file")
             logging.critical(e);
