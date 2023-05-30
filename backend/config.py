@@ -33,7 +33,7 @@ SERVER_NONCE = "RabroyllIjhywofuckcorwojnamvowAg"
 
 MAX_CONTENT_PATH = 30*1024*1024;
 
-OUTPUT_FOLDER = "/opt/data2/ipcam/storage/192.168.1.21/video1/",
+OUTPUT_FOLDER = "/opt/data2/ipcam/storage/192.168.1.21/video1/"
 
 USER = "admin"
 

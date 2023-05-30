@@ -101,7 +101,6 @@ def cleanup(config):
         try:
             if os.path.exists(config["OUTPUT_FOLDER"]):
                 files = os.listdir(config["OUTPUT_FOLDER"])
-                print(files)
                 now = int(datetime.now().timestamp())
                 for file in files:
                     if re.match("[0-9]+\.(mp4|mpeg4|mkv|avi)", file):
