@@ -180,7 +180,7 @@ def get_next_m3u8():
                 lastTimestamp = int(timestamps[-10])
             sequence = 0
             session["sequence"] = sequence
-            session["last_timestamp"] = int(lastTimestamp)        
+            session["last_timestamp"] = int(lastTimestamp)
         else:
             l = 0
             r = len(timestamps) - 1
@@ -198,15 +198,15 @@ def get_next_m3u8():
                     else:
                         r = floor((r + l) / 2)
             if notFound:
-                return 404
+                return Response(response=None, status=404,  mimetype="plain/text")
             session["last_timestamp"] = lastTimestamp
     
     print("Building the file list")
-    sequence += min(config["MAX_SEGMENTS_PER_HLS"], len(timestamps) - 1);
+    sequence += min(config["MAX_SEGMENTS_PER_HLS"], len(timestamps));
     session["sequence"] = sequence
     durations = [];
     timestampsToAdd = []
-    for idx in range(newIndex, min(newIndex + config["MAX_SEGMENTS_PER_HLS"], newIndex + len(timestamps) - 1)):
+    for idx in range(newIndex, min(newIndex + config["MAX_SEGMENTS_PER_HLS"], newIndex + len(timestamps))):
         vfile = str(timestamps[idx]) + "." + config["VIDEO_CONTAINER"];
         vfile_full_path = config["OUTPUT_FOLDER"] + vfile;
         result=os.popen("".join([config["EXEC_DIR"], "/", config["EXTRACT_DURATION_SCRIPT"], " ", vfile_full_path])).read().strip();
@@ -224,5 +224,5 @@ def get_next_m3u8():
         playlist += "#EXTINF:" + str(durations[i]) + ",\r\n";
         playlist += "/api/get_file/" + str(timestampsToAdd[i]) + "." + config["VIDEO_CONTAINER"] + "\r\n";
     
-    return Response(response=playlist, status=200,  mimetype="application/x-mpegURL")
+    return Response(response=playlist, status=200,  mimetype="application/x-mpegurl")
 
