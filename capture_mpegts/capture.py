@@ -123,6 +123,23 @@ TS_PACKET_PAYLOAD_ONLY           = 0x1;
 TS_PACKET_ADAPTATION_ONLY        = 0x2;
 TS_PACKET_ADAPTATION_AND_PAYLOAD = 0x3;
 
+# Stream Types
+# See http://www.atsc.org/cms/standards/Code-Points-Registry-Rev-35.xlsx
+STREAM_TYPE_MPEG1_VIDEO    = 0x01;
+STREAM_TYPE_MPEG2_VIDEO    = 0x02;
+STREAM_TYPE_MPEG1_AUDIO    = 0x03;
+STREAM_TYPE_MPEG2_AUDIO    = 0x04;
+STREAM_TYPE_PRIVATE        = 0x06;
+STREAM_TYPE_AUDIO_ADTS     = 0x0f;
+STREAM_TYPE_H264           = 0x1b;
+STREAM_TYPE_MPEG4_VIDEO    = 0x10;
+STREAM_TYPE_METADATA       = 0x15;
+STREAM_TYPE_AAC            = 0x11;
+STREAM_TYPE_MPEG2_VIDEO_2  = 0x80;
+STREAM_TYPE_AC3            = 0x81;
+STREAM_TYPE_PCM            = 0x83;
+STREAM_TYPE_SCTE35         = 0x86;
+
 MAX_BUFFER_SIZE_IN_BYTES   = config["SEQUENCE_LENGTH_IN_BYTES"];
 
 # PES header
@@ -270,7 +287,6 @@ def remove_file(path):
         return False;
 
 def captureMPEGTS():
-    return
     """
     Converts the MP4 files to MPEGTS stream files
     """
@@ -553,14 +569,14 @@ def captureMPEGTS():
                     sequence_buffer_copy = copy.deepcopy(sequence_buffer[stream_id][0:buffer_fill[stream_id]]);
                     threading.Thread(target=save_buffer, args=(sequence_buffer_copy, output_folder[stream_id], playing_timestamp[stream_id])).start();
                     sequence[stream_id] = sequence[stream_id] + 1;
-                    if sequence[stream_id] > MAX_SEQUENCE_PER_FOLDER:
-                        sequence[stream_id] = 1;
-                        playlist_constructed[stream_id] = False;
-                        playing_timestamp[stream_id] = waiting_timestamp[stream_id];
-                        waiting_timestamp[stream_id] = filling_timestamp[stream_id];
-                        filling_timestamp[stream_id] = int(time.time());
-                        #output_folder[stream_id] = "".join([base_dir, "/", str(stream_id), "/", str(filling_timestamp[stream_id])]);
-                        #create_folder(output_folder[stream_id]);
+                    #if sequence[stream_id] > 1:
+                    sequence[stream_id] = 1;
+                    playlist_constructed[stream_id] = False;
+                    playing_timestamp[stream_id] = waiting_timestamp[stream_id];
+                    waiting_timestamp[stream_id] = filling_timestamp[stream_id];
+                    filling_timestamp[stream_id] = int(time.time());
+                    #output_folder[stream_id] = "".join([base_dir, "/", str(stream_id), "/", str(filling_timestamp[stream_id])]);
+                    #create_folder(output_folder[stream_id]);
                     # Copy PAT, PMT and first packet of a new PES carrying video data
                     # First two packets of a segment MUST be PAT and PMT packets 
                     # as described in https://tools.ietf.org/html/rfc8216#section-3
