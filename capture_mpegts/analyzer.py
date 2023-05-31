@@ -235,6 +235,10 @@ class LookupTable():
 	def set_pmt_pid_stream_id(self, stream_id, pmt_pid):
 		self.pmt_pid_stream_id[pmt_pid] = stream_id;
 		self.stream_id_pmt_pid[stream_id] = pmt_pid;
+		logging.debug("********************************** SETTNING MAPPING PMT PID TO STREAM ID *****************************************")
+		logging.debug(pmt_pid)
+		logging.debug(stream_id)
+		logging.debug("********************************** SETTNING MAPPING PMT PID TO STREAM ID *****************************************")
 	def get_stream_id_by_pmt_pid(self, pmt_pid):
 		return self.pmt_pid_stream_id.get(pmt_pid);
 	def is_valid_pmt_pid(self, pmt_pid):
