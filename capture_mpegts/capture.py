@@ -199,7 +199,7 @@ def is_key_frame(b):
 			# The NALU type are the first 5 bits 
 			nal_type = (b[offset + 4] & 0x1F);
 			#if nal_type == IDR_FRAME_REVERSE_ENGINEERED or nal_type == IDR_2_FRAME_REVERSE_ENGINEERED:
-			if nal_type == H264_NAL_IDR_SLICE or nal_type == H264_NAL_NON_IDR_SLICE:
+			if nal_type == H264_NAL_IDR_SLICE or nal_type == H264_NAL_NONIDR_SLICE:
 				idr_found = True;
 			#if nal_type == SPS_FRAME_REVERSE_ENGINEERED:
 			if nal_type == H264_NAL_SPS:
@@ -293,6 +293,11 @@ def captureMPEGTS():
     logging.debug("Binding to socket........................")
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((config["MPEGTS_UDP_IP"], config["MPEGTS_UDP_PORT"]))
+    #sock.setsockopt(socket.SOL_SOCKET,socket.SO_RCVBUF, 10*1024*1024)
+    logging.debug("Setting socket option.................")
+    logging.debug("Buffer size --------------------------------------")
+    logging.debug(sock.getsockopt(socket.SOL_SOCKET,socket.SO_RCVBUF))
+    logging.debug("Buffer size --------------------------------------")
 
     lookup = LookupTable(config["VALID_CHANNEL"]);
     # Precreate buffer twice the size of the maximum buffer size
@@ -335,20 +340,47 @@ def captureMPEGTS():
     pat_packet_processed = False;
     #pmt_packet = None;
     #playlist_constructed = False;
+    cumulative_buf = bytearray([])
     while True:
         try:
+            buf = list([])
             try:
                 buf, addr = sock.recvfrom(TS_PACKET_SIZE)
-                logging.debug("Got data on the socket..........")
+                #sbuf = fd.read(TS_PACKET_SIZE)
+                #fd.write(buf)
+                #continue
                 buf = bytearray(buf)
+                logging.debug("Got data on the socket..........")
+                #sbuf = bytearray(sbuf)
+                #cumulative_buf[len(cumulative_buf):] = sbuf
+                #index = 0
+                #found = False
+                #if not synched:
+                #    while index < len(cumulative_buf):
+                #        if cumulative_buf[index] == SYNC_BYTE:
+                #            if index + TS_PACKET_SIZE > len(cumulative_buf):
+                #                break;
+                #            logging.debug("SYNC BYTE IS NOT THE FIRST ONE %d " % index)
+                #            buf = cumulative_buf[index:index + TS_PACKET_SIZE]
+                #            cumulative_buf = cumulative_buf[index + TS_PACKET_SIZE:]
+                #            logging.debug("SIZE OF THE BUFFER AFTER %d %d" % (len(cumulative_buf), index))
+                #            found = True
+                #            break
+                #        index += 1
+                #if not found:
+                #    
+                #    continue
             except IOError:
                 logging.critical("Socket was closed, cannot continue");
                 exit(-1)
-            if len(buf) != TS_PACKET_SIZE:
-                continue;
+            #if len(buf) != TS_PACKET_SIZE:
+            #    logging.debug("Invalid packet size %d " % len(buf))
+            #    continue;
             if TS_PACKET_SYNC_BYTE(buf) != SYNC_BYTE:
+                logging.critical("Invalid synchronization byte: %d %d" % (TS_PACKET_SYNC_BYTE(buf), SYNC_BYTE) )
                 continue;
             if TS_PACKET_TRANS_ERROR(buf):
+                logging.critical("*******************************TS packet error*******************************")
                 # Skip the packet if we have an error
                 continue;
             pid = TS_PACKET_PID(buf);
@@ -567,13 +599,7 @@ def captureMPEGTS():
                 if buffer_fill[stream_id] >= MAX_BUFFER_SIZE_IN_BYTES:
                     # We need to copy the sequence buffer otherwise some packets can be overwritten
                     sequence_buffer_copy = copy.deepcopy(sequence_buffer[stream_id][0:buffer_fill[stream_id]]);
-                    threading.Thread(target=save_buffer, args=(sequence_buffer_copy, output_folder[stream_id], playing_timestamp[stream_id])).start();
-                    sequence[stream_id] = sequence[stream_id] + 1;
-                    #if sequence[stream_id] > 1:
-                    sequence[stream_id] = 1;
-                    playlist_constructed[stream_id] = False;
-                    playing_timestamp[stream_id] = waiting_timestamp[stream_id];
-                    waiting_timestamp[stream_id] = filling_timestamp[stream_id];
+                    threading.Thread(target=save_buffer, args=(sequence_buffer_copy, output_folder[stream_id], filling_timestamp[stream_id])).start();
                     filling_timestamp[stream_id] = int(time.time());
                     #output_folder[stream_id] = "".join([base_dir, "/", str(stream_id), "/", str(filling_timestamp[stream_id])]);
                     #create_folder(output_folder[stream_id]);
@@ -610,7 +636,7 @@ def captureMPEGTS():
             logging.critical("Exception occured while converting the file")
             logging.critical(e);
             traceback.print_exc()
-        sleep(1)
+        #sleep(1)
 
 # Saves the buffer into the output folder
 def save_buffer(buf, output_folder, timestamp):
@@ -628,9 +654,10 @@ def save_buffer(buf, output_folder, timestamp):
 		fd.close();
 		#I think there is no need to do extra conversion since we already have MPEG2-TS stream which should be readable by the players
 		#The conversion is needed if we need to use different container type for example MPEG-4 contaiener.
-		#Also Flash does not support MPEG2 audio, so we need to transcode audio signal to AAC for example 
+		#Also Flash does not support MPEG2 audio, so we need to transcode audio signal to AAC for example
+		logging.debug("SAVGING BUFFER TO OUTPUT: TIMESTAMP: %d" % timestamp)
 		ts_path_no_extension = "".join([output_folder, "/", str(timestamp)]);
-		result=os.popen("".join([config["EXEC_DIR"], "/", config["CONVERT_RAW_TS"], " ", ts_path_no_extension])).read().strip();
+		result=os.popen("".join([config["EXEC_DIR"], "/", config["CONVERT_RAW_TS"], " ", ts_path_no_extension, " ", output_folder])).read().strip();
 		#os.remove("".join([output_folder, "/", "sequence", str(timestamp), ".raw"]));
 		set_ownership("".join([ts_path_no_extension, ".ts"]));
 		# Release the lock
@@ -651,17 +678,18 @@ def capturing(config):
             os.makedirs(folder)
         try:
             subprocess.run(["ffmpeg", \
-                    "-re", "-i", \
+                    "-i", \
                     config["RTSP_URL"], \
                     #"-rtsp_transport", \
                     #config["TRANSPORT_PROTOCOL"], \
                     "-vcodec", "copy", \
                     "-acodec", "copy", \
-                    "-preset", "ultrafast",\
+                    "-preset", "veryfast",\
                     "-mpegts_flags", "pat_pmt_at_frames", \
                     "-copyts", \
                     "-f", "mpegts", \
-                    "udp://" + str(config["MPEGTS_UDP_IP"]) + ":" + str(config["MPEGTS_UDP_PORT"]), \
+                    "udp://" + str(config["MPEGTS_UDP_IP"]) + ":" + str(config["MPEGTS_UDP_PORT"]) + "?pkt_size=188&buffer_size=65535", \
+                    #"out.ts"
                     ])
         except Exception as e:
             logging.critical("Exception occured while capturing the video stream ....!!!!")

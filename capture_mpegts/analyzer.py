@@ -314,6 +314,7 @@ def analyzeMPEGTS(buffer):
     #pmt_packet = None;
     #playlist_constructed = False;
     buffer_offset = 0;
+    logging.debug("HERE")
     for buffer_offset in range(0, len(buffer), TS_PACKET_SIZE):
         try:
             try:
@@ -322,10 +323,13 @@ def analyzeMPEGTS(buffer):
                 logging.critical("Socket was closed, cannot continue");
                 exit(-1)
             if len(buf) != TS_PACKET_SIZE:
+                logging.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 continue;
             if TS_PACKET_SYNC_BYTE(buf) != SYNC_BYTE:
                 continue;
+                logging.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             if TS_PACKET_TRANS_ERROR(buf):
+                logging.debug("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
                 # Skip the packet if we have an error
                 continue;
             pid = TS_PACKET_PID(buf);
@@ -339,7 +343,7 @@ def analyzeMPEGTS(buffer):
             if TS_PACKET_ADAPTATION(buf) == TS_PACKET_ADAPTATION_AND_PAYLOAD or TS_PACKET_ADAPTATION(buf) == TS_PACKET_ADAPTATION:
                 #print "Adaptation header present and its length is %d" % (TS_PACKET_ADAPTATION_LENGTH(buf));
                 offset += (TS_PACKET_ADAPTATION_LENGTH(buf) + 1);
-            logging.debug("IS PAT PID? %d" % pid)
+            logging.critical("IS PAT PID? %d" % pid)
             if pid == PAT_PID and not pat_packet_processed:
             #if pid == PAT_PID and not pat_commited:
                 pat_packet_processed = True;
@@ -451,14 +455,14 @@ def analyzeMPEGTS(buffer):
             #print pmt_pid == pid, pmt_synced, (not pat_commited)
             #if pid == pmt_pid and pmt_synced and (not pmt_commited):
             #if pid == pmt_pid and pmt_packet_processed:
-            logging.debug("Current PID " + str(pid))
+            logging.critical("Current PID " + str(pid))
             logging.debug("Stream ID " + str(stream_id))
             if lookup.is_valid_pmt_pid(pid) and not pmt_packet_processed.get(pid, False):
                 pmt_packet_processed[pid] = True;
                 pmt_packet = copy.deepcopy(buf);
                 stream_id = lookup.get_stream_id_by_pmt_pid(pid)
                 lookup.set_pmt_packet(stream_id, pmt_packet);
-                logging.debug("**************** PMT PID ******************");
+                logging.critical("**************** PMT PID ******************");
                 if payload_unit_start_indicator:
                     logging.debug("PUSI bit is set. Skipping %d bytes" % (buf[offset]));
                     offset += ((buf[offset] & 0xFF) + 1);
@@ -536,7 +540,7 @@ def analyzeMPEGTS(buffer):
             #	print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             #	print "Is key frame %d" % is_key_frame(buf);
             #	print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-            logging.debug("Looking up VIDEO PID " + str(pid))
+            #logging.critical("Looking up VIDEO PID " + str(pid))
             if lookup.is_valid_video_pid(pid) and payload_unit_start_indicator == 0x1 and is_key_frame(buf):
                 stream_id = lookup.get_stream_id_by_video_pid(pid);
                 #print "Stream ID %d, Buffer fill level %d, Maximum buffer size %d " % (stream_id, buffer_fill[stream_id], MAX_BUFFER_SIZE_IN_BYTES);
@@ -587,7 +591,7 @@ def analyzeMPEGTS(buffer):
             logging.critical("Exception occured while converting the file")
             logging.critical(e);
             traceback.print_exc()
-        sleep(1)
+        #sleep(1)
 
 from sys import argv
 fd = open(argv[1], "rb")
