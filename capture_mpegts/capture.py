@@ -621,7 +621,7 @@ def save_buffer(buf, output_folder, timestamp):
 		#fd.write("processing...");
 		#fd.flush();
 		#fd.close();
-		fd = open("".join([output_folder, "/", str(sequence), ".raw"]), "wb");
+		fd = open("".join([output_folder, "/", str(timestamp), ".raw"]), "wb");
 		logging.debug("Saving the buffer...")
 		fd.write(buf);
 		fd.flush();
