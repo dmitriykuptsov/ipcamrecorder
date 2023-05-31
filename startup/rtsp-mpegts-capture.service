@@ -1,0 +1,16 @@
+[Unit]
+Description=IPCAM RTSP stream capture
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+
+WorkingDirectory=/opt/data2/ipcam/capture_mpegts/
+ExecStart=/usr/bin/python3 /opt/data2/ipcam/capture_mpegts/capture.py
+
+[Install]
+WantedBy=multi-user.target

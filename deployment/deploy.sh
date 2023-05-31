@@ -17,6 +17,7 @@ sudo mkdir -p /opt/data2/ipcam/storage/192.168.1.21/video1
 
 sudo chown www-data:www-data -R /opt/data2/ipcam/
 sudo chown www-data:www-data -R /opt/data2/ipcam/capture/
+sudo chown www-data:www-data -R /opt/data2/ipcam/capture_mpegts/
 sudo chown www-data:www-data -R /opt/data2/ipcam/hls/
 
 echo "Copying Nginx configuration files"
@@ -32,8 +33,17 @@ echo "Copying the RTSP stream capture application"
 sudo rsync -rv ../capture/* /opt/data2/ipcam/capture/
 sudo chown www-data:www-data -R /opt/data2/ipcam/capture/
 
+echo "Copying the RTSP stream capture application"
+sudo rsync -rv ../capture_mpegts/* /opt/data2/ipcam/capture_mpegts/
+sudo chown www-data:www-data -R /opt/data2/ipcam/capture_mpegts/
+
 echo "Copying the web application files"
 sudo rsync -rv ../frontend/nvr/dist/* /var/www/html/ipcam/
+
+echo "Copying and enabling the service files"
+sudo rsync -rv ../startup/rtsp-mpegts-capture.service /etc/systemd/system/
+sudo systemctl enable rtsp-mpegts-capture
+sudo systemctl start rtsp-mpegts-capture
 
 echo "Copying and enabling the service files"
 sudo rsync -rv ../startup/rtsp-capture.service /etc/systemd/system/
