@@ -45,6 +45,13 @@ from time import sleep
 # Import OS stuff
 import os
 
+# Buffer copy functionality
+import copy
+
+# Change ownership
+import pwd
+import grp
+
 # Regular expressions
 import re
 
@@ -74,6 +81,9 @@ logging.basicConfig(
 		logging.StreamHandler(sys.stdout)
 	]
 );
+
+# Well known PIDs
+PAT_PID                    = 0x0;
 
 # Maximum value for the CC
 MAX_CC_COUNTER                 = 0x10;
@@ -206,7 +216,7 @@ class LookupTable():
 	def get_stream_id_by_pmt_pid(self, pmt_pid):
 		return self.pmt_pid_stream_id.get(pmt_pid);
 	def is_valid_pmt_pid(self, pmt_pid):
-		#print "Processing PMT pid %d" % pmt_pid;
+		logging.debug("Processing PMT pid %d" % pmt_pid);
 		stream_id = self.pmt_pid_stream_id.get(pmt_pid, None)
 		if stream_id != None:
 			return True;
@@ -243,7 +253,8 @@ def set_ownership(path):
 # Creates the folder and sets the owner of the folder to www-data
 def create_folder(path):
     try:
-        os.makedirs(path);
+        if not os.path.exists(path):
+            os.makedirs(path);
         set_ownership(path)
         return True;
     except Exception as e:
@@ -259,9 +270,11 @@ def remove_file(path):
         return False;
 
 def captureMPEGTS():
+    return
     """
     Converts the MP4 files to MPEGTS stream files
     """
+    logging.debug("Binding to socket........................")
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((config["MPEGTS_UDP_IP"], config["MPEGTS_UDP_PORT"]))
 
@@ -291,7 +304,7 @@ def captureMPEGTS():
     output_folder[stream_id] = config["OUTPUT_FOLDER"];
     if not create_folder(output_folder[stream_id]):
         logging.debug("Could not create folder. Exiting...");
-        exit(-1);
+        #exit(-1);
     sync_count = 0;
     lost_packets = 0;
     pmt_pid = 0x0;
@@ -310,6 +323,8 @@ def captureMPEGTS():
         try:
             try:
                 buf, addr = sock.recvfrom(TS_PACKET_SIZE)
+                logging.debug("Got data on the socket..........")
+                buf = bytearray(buf)
             except IOError:
                 logging.critical("Socket was closed, cannot continue");
                 exit(-1)
@@ -321,7 +336,7 @@ def captureMPEGTS():
                 # Skip the packet if we have an error
                 continue;
             pid = TS_PACKET_PID(buf);
-            #print "PID of the packet %d" % (pid);
+            logging.debug("**************PID of the packet %d *********************" % (pid));
             #Have no idea how and why we have here extra byte but it seems to work that way
             offset = TS_HEADER_SIZE;
             #print "Adaptation header %d" % (TS_PACKET_ADAPTATION(buf));
@@ -331,6 +346,7 @@ def captureMPEGTS():
             if TS_PACKET_ADAPTATION(buf) == TS_PACKET_ADAPTATION_AND_PAYLOAD or TS_PACKET_ADAPTATION(buf) == TS_PACKET_ADAPTATION:
                 #print "Adaptation header present and its length is %d" % (TS_PACKET_ADAPTATION_LENGTH(buf));
                 offset += (TS_PACKET_ADAPTATION_LENGTH(buf) + 1);
+            logging.debug("IS PAT PID? %d" % pid)
             if pid == PAT_PID and not pat_packet_processed:
             #if pid == PAT_PID and not pat_commited:
                 pat_packet_processed = True;
@@ -351,7 +367,7 @@ def captureMPEGTS():
                 version_id = (buf[offset + 5] & 0x3e);
                 current_next_section_inicator = (buf[offset + 5] & 0x1);
                 pmt_pid_found  = False;
-                num_programs   = (section_length - 5 - 4) / 4;
+                num_programs   = int((section_length - 5 - 4) / 4);
                 index = offset + PAT_PREHEADER_LENGTH;
                 logging.debug("Number of programs %d " % (num_programs));
                 for i in range(num_programs):
@@ -426,6 +442,7 @@ def captureMPEGTS():
                         buf[offset + 2] = ((crc32 & 0x0000ff00) >>  8);
                         buf[offset + 3] = (crc32 & 0x000000ff);
                         pat_packet = copy.deepcopy(buf);
+                        logging.debug("----------------------------------- SETTING PMT PID %d ----------------------------------------" % pmt_pid)
                         lookup.set_pat_packet(stream_id, pat_packet);
                         lookup.set_pmt_pid_stream_id(stream_id, pmt_pid);
                         #break;
@@ -441,6 +458,8 @@ def captureMPEGTS():
             #print pmt_pid == pid, pmt_synced, (not pat_commited)
             #if pid == pmt_pid and pmt_synced and (not pmt_commited):
             #if pid == pmt_pid and pmt_packet_processed:
+            logging.debug("Current PID " + str(pid))
+            logging.debug("Stream ID " + str(stream_id))
             if lookup.is_valid_pmt_pid(pid) and not pmt_packet_processed.get(pid, False):
                 pmt_packet_processed[pid] = True;
                 pmt_packet = copy.deepcopy(buf);
@@ -524,6 +543,7 @@ def captureMPEGTS():
             #	print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             #	print "Is key frame %d" % is_key_frame(buf);
             #	print "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+            logging.debug("Looking up VIDEO PID " + str(pid))
             if lookup.is_valid_video_pid(pid) and payload_unit_start_indicator == 0x1 and is_key_frame(buf):
                 stream_id = lookup.get_stream_id_by_video_pid(pid);
                 #print "Stream ID %d, Buffer fill level %d, Maximum buffer size %d " % (stream_id, buffer_fill[stream_id], MAX_BUFFER_SIZE_IN_BYTES);
@@ -560,14 +580,14 @@ def captureMPEGTS():
                 #elif pid == video_pid and pid != 0x0:
             elif lookup.is_valid_video_pid(pid):
                 stream_id = lookup.get_stream_id_by_video_pid(pid);
-                #print "Stream id %d, buffer fill %d" % (stream_id, buffer_fill[stream_id]);
+                logging.debug("Stream id %d, buffer fill %d" % (stream_id, buffer_fill[stream_id]));
                 sequence_buffer[stream_id][buffer_fill[stream_id]:buffer_fill[stream_id] + TS_PACKET_SIZE] = buf;
                 buffer_fill[stream_id] += TS_PACKET_SIZE;
                 continue;
             if lookup.is_valid_audio_pid(pid):
                 stream_id = lookup.get_stream_id_by_audio_pid(pid);
                 #if pid == audio_pid and pid != 0x0:
-                #print "Stream id %d, buffer fill %d" % (stream_id, buffer_fill[stream_id]);
+                logging.debug("AUDIO Stream id %d, buffer fill %d" % (stream_id, buffer_fill[stream_id]));
                 sequence_buffer[stream_id][buffer_fill[stream_id]:buffer_fill[stream_id] + TS_PACKET_SIZE] = buf;
                 buffer_fill[stream_id] += TS_PACKET_SIZE;
         except Exception as e:
@@ -617,11 +637,13 @@ def capturing(config):
             subprocess.run(["ffmpeg", \
                     "-re", "-i", \
                     config["RTSP_URL"], \
-                    "-rtsp_transport", \
-                    config["TRANSPORT_PROTOCOL"], \
+                    #"-rtsp_transport", \
+                    #config["TRANSPORT_PROTOCOL"], \
                     "-vcodec", "copy", \
                     "-acodec", "copy", \
-                    "-preset", "ultrafast"
+                    "-preset", "ultrafast",\
+                    "-mpegts_flags", "pat_pmt_at_frames", \
+                    "-copyts", \
                     "-f", "mpegts", \
                     "udp://" + str(config["MPEGTS_UDP_IP"]) + ":" + str(config["MPEGTS_UDP_PORT"]), \
                     ])

@@ -28,8 +28,8 @@ config = {
     "CLEAN_UP_INTERVAL": 60,
     "MPEGTS_UDP_IP": "127.0.0.1",
     "MPEGTS_UDP_PORT": 65404,
-    "VALID_CHANNEL": 4096,
-    "SEQUENCE_LENGTH_IN_BYTES": 10*1024*1024,
+    "VALID_CHANNEL": 1,
+    "SEQUENCE_LENGTH_IN_BYTES": 1*1024*1024,
     "EXEC_DIR": "/opt/data2/ipcam/scripts/",
     "CONVERT_RAW_TS": "convert_ts.sh"
 }
